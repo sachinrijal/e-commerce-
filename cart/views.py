@@ -27,6 +27,7 @@ def add_cart(request,product_id):
     try:
         cartitem = CartItem.objects.get(product=product,cart=cart)
         cartitem.quantity += 1
+        cartitem.save()
     except CartItem.DoesNotExist:
         cartitem = CartItem.objects.create(
             product=product,
@@ -38,8 +39,26 @@ def add_cart(request,product_id):
 
     return redirect('cart')
 
+def remove_cart(request , product_id):
+    cart = Cart.objects.get(cart_id = _cart_id(request))
+    product = Product.objects.get(id=product_id)
+    cartitem = CartItem.objects.get(cart=cart,product=product)
 
+    if cartitem.quantity > 1 :
+        cartitem.quantity -= 1
+        cartitem.save()
+    else:
+        cartitem.delete()
 
+    return redirect('cart')
+    
+def remove_cart_item(request,product_id):
+    cart = Cart.objects.get(cart_id = _cart_id(request))
+    product = Product.objects.get(id=product_id)
+    cartitem = CartItem.objects.get(cart=cart,product=product)
+
+    cartitem.delete()
+    return redirect('cart')
 
 
 def cart(request,total=0 ,quantity=0 , cartitems=None):
@@ -50,6 +69,9 @@ def cart(request,total=0 ,quantity=0 , cartitems=None):
         for cartitem in cartitems:
             total += cartitem.product.price * cartitem.quantity
             quantity += 1
+        
+        tax = (5*total)/100
+        grand_total = total + tax
 
     except  ObjectDoesNotExist :
         pass
@@ -58,8 +80,9 @@ def cart(request,total=0 ,quantity=0 , cartitems=None):
     context = {
         'total':total,
         'quantity': quantity,
-        'cartitems':cartitems
+        'cartitems':cartitems,
+        'grand_total':grand_total,
+        'tax':tax
     }
-
-    print(total,cartitem)
+   
     return render(request,'cart/cart.html',context)
