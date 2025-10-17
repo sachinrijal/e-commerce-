@@ -21,8 +21,12 @@ from . import views
 
 urlpatterns = [
     path('', views.store,name='store'),
-    path('<slug:slug>', views.product_by_category,name='product_by_category'),
-    path('<slug:category_slug>/<slug:product_slug>', views.product_detail,name='product_detail'),
+    path('category/<slug:slug>', views.product_by_category,name='product_by_category'),
+    path('category/<slug:category_slug>/<slug:product_slug>', views.product_detail,name='product_detail'),
+
+    #search 
+    path('search/', views.search,name='search'),
+
 
 
 ] 
